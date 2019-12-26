@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".MainActivity">
+
+    <FrameLayout
+        android:id="@+id/banner_top_frame_layout"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dp_50" />
+
+
+
+    <TextView
+        android:id="@+id/tv_backgroud"
+        android:layout_centerInParent="true"
+        android:background="@color/colorPrimary"
+        android:layout_width="@dimen/dp_100"
+        android:layout_height="@dimen/dp_100"/>
+
+    <TextView
+        android:layout_width="@dimen/dp_50"
+        android:background="@color/colorAccent"
+        android:layout_centerInParent="true"
+        android:layout_height="@dimen/dp_50"/>
+
+    <TextView
+        android:id="@+id/tv_w_h"
+        android:layout_below="@+id/tv_backgroud"
+        android:layout_marginTop="30dp"
+        android:layout_centerHorizontal="true"
+        android:layout_width="@dimen/dp_100"
+        android:layout_height="@dimen/dp_100"/>
+
+
+    <TextView
+        android:id="@+id/tv_show"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dp_50"
+        android:layout_marginTop="@dimen/dp_100"
+        android:gravity="center"
+        android:text="Hello World!"
+        android:textSize="@dimen/sp_20"/>
+
+    <LinearLayout
+        android:id="@+id/linearLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/tv_show"
+        android:orientation="vertical" />
+
+    <FrameLayout
+        android:id="@+id/banner_bottom_frame_layout"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dp_50"
+        android:layout_alignParentBottom="true" />
+
+</RelativeLayout>

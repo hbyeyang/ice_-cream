@@ -1,0 +1,2 @@
+include ':app', ':icecream'
+rootProject.name='weather_demo'
