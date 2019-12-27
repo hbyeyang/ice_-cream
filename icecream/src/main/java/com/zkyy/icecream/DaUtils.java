@@ -7,8 +7,8 @@ import android.content.pm.PackageManager;
 import android.text.TextUtils;
 
 import com.blankj.utilcode.util.Utils;
-import com.zkyy.icecream.dautil.DaInit;
 import com.zkyy.icecream.bean.AdConfigBean;
+import com.zkyy.icecream.config.TTAdManagerHolder;
 import com.zkyy.icecream.constan.AdLoc;
 import com.zkyy.icecream.constan.PhoneConstan;
 import com.zkyy.icecream.net.GsonObjectCallback;
@@ -106,7 +106,6 @@ public class DaUtils {
         try {
             final Application app = Utils.getApp();
             mContext = app;
-            DaInit.init(mContext,"5018834");
             mAdConfigBean = (AdConfigBean) SPAdUtils.getObject(app, AdLoc.AD_CONFIG);
             if (mAdConfigBean != null) {
                 isInit = true;
@@ -140,6 +139,8 @@ public class DaUtils {
         mAchannel = achannel;
         mChannel = channel;
         Utils.init(application);
+        LogUtils.d("TTAdManagerHolder初始化");
+        TTAdManagerHolder.init(mContext,"5001121");
         if (mAdConfigBean == null) {
             mAdConfigBean = (AdConfigBean) SPAdUtils.getObject(application, AdLoc.AD_CONFIG);
             if(mAdConfigBean != null) {

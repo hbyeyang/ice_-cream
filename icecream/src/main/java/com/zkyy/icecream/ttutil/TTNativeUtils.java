@@ -22,6 +22,7 @@ import com.zkyy.icecream.R;
 import com.zkyy.icecream.callback.DaNativeCallBack;
 import com.zkyy.icecream.config.TTAdManagerHolder;
 import com.zkyy.icecream.utils.LogUtils;
+import com.zkyy.icecream.utils.MyUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -55,7 +56,8 @@ public class TTNativeUtils {
         final AdSlot adSlot = new AdSlot.Builder()
                 .setCodeId(adCode)
                 .setSupportDeepLink(true)
-                .setImageAcceptedSize(600, 257)
+//                .setImageAcceptedSize(600, 257)
+                .setImageAcceptedSize(MyUtils.px2dp(activity,600), MyUtils.px2dp(activity,257))
                 .setNativeAdType(AdSlot.TYPE_BANNER) //请求原生广告时候，请务必调用该方法，设置参数为TYPE_BANNER或TYPE_INTERACTION_AD
                 .setAdCount(1)
                 .build();

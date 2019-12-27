@@ -1,6 +1,7 @@
 package com.zkyy.icecream.dautil;
 
 import android.app.Activity;
+import android.view.View;
 import android.widget.FrameLayout;
 
 import com.zkyy.icecream.callback.DaBannerCallBack;
@@ -23,24 +24,28 @@ public class DaBannerLoad {
     private static String TAG = DaBannerLoad.class.getSimpleName() + ": ";
 
     public static void loadBanner(Activity activity, DaAdvertiserType daAdvertiserType, String adCode, FrameLayout frameLayout, DaBannerCallBack daBannerCallBack) {
-        if (activity == null) {
+        if (activity == null && frameLayout != null) {
             LogUtils.d(TAG + "activity不能为空");
+            frameLayout.setVisibility(View.GONE);
             return;
         }
-        if (daAdvertiserType == null) {
+        if (daAdvertiserType == null && frameLayout != null) {
             LogUtils.d(TAG + "daAdvertiserType不能为空");
+            frameLayout.setVisibility(View.GONE);
             return;
         }
-        if (adCode == null) {
+        if (adCode == null && frameLayout != null) {
             LogUtils.d(TAG + "adCode不能为空");
+            frameLayout.setVisibility(View.GONE);
             return;
         }
         if (frameLayout == null) {
             LogUtils.d(TAG + "frameLayout容器不能为空");
             return;
         }
-        if (daBannerCallBack == null) {
+        if (daBannerCallBack == null && frameLayout != null) {
             LogUtils.d(TAG + "daBannerCallBack不能为空");
+            frameLayout.setVisibility(View.GONE);
             return;
         }
         switch (daAdvertiserType) {
@@ -54,5 +59,9 @@ public class DaBannerLoad {
             case MV:
                 break;
         }
+    }
+
+    private static void loadOther(Activity activity, DaAdvertiserType daAdvertiserType, String adCode, FrameLayout frameLayout, DaBannerCallBack daBannerCallBack) {
+
     }
 }

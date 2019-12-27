@@ -19,4 +19,9 @@ public interface DaSplashCallBack {
     public void onDaSplashTimeout();
 
     public void onDaSplashAdLoad(TTSplashAd ad);
+
+    /**
+     * 跳转主页
+     */
+    public void onDaToMain();
 }

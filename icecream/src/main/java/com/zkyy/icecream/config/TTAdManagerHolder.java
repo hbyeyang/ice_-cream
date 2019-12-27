@@ -27,6 +27,10 @@ public class TTAdManagerHolder {
         doInit(context);
     }
 
+    public static void init(Context context, String codeId) {
+        doInit(context, codeId);
+    }
+
     public static void init(Context context, AdConfigBean.AdidsEntity adidsEntity) {
         doInit(context, adidsEntity);
     }
@@ -35,6 +39,13 @@ public class TTAdManagerHolder {
     private static void doInit(Context context) {
         if (!sInit) {
             TTAdSdk.init(context, buildConfig(context));
+            sInit = true;
+        }
+    }
+
+    private static void doInit(Context context, String codeId) {
+        if (!sInit) {
+            TTAdSdk.init(context, buildConfig(context, codeId));
             sInit = true;
         }
     }
@@ -49,6 +60,23 @@ public class TTAdManagerHolder {
     private static TTAdConfig buildConfig(Context context) {
         return new TTAdConfig.Builder()
                 .appId("5001121")
+//                .appId(adidsEntity.getAppid())
+                .useTextureView(true) //使用TextureView控件播放视频,默认为SurfaceView,当有SurfaceView冲突的场景，可以使用TextureView
+                .appName("APP测试媒体")
+//                .appName(DaUtils.getAppName(context))
+                .titleBarTheme(TTAdConstant.TITLE_BAR_THEME_DARK)
+                .allowShowNotify(true) //是否允许sdk展示通知栏提示
+                .allowShowPageWhenScreenLock(true) //是否在锁屏场景支持展示广告落地页
+                .debug(true) //测试阶段打开，可以通过日志排查问题，上线时去除该调用
+                .globalDownloadListener(new AppDownloadStatusListener(context)) //下载任务的全局监听
+                .directDownloadNetworkType(TTAdConstant.NETWORK_STATE_WIFI, TTAdConstant.NETWORK_STATE_4G, TTAdConstant.NETWORK_STATE_3G) //允许直接下载的网络状态集合
+                .supportMultiProcess(false)
+                .build();
+    }
+
+    private static TTAdConfig buildConfig(Context context, String codeId) {
+        return new TTAdConfig.Builder()
+                .appId(codeId)
 //                .appId(adidsEntity.getAppid())
                 .useTextureView(true) //使用TextureView控件播放视频,默认为SurfaceView,当有SurfaceView冲突的场景，可以使用TextureView
                 .appName("APP测试媒体")
