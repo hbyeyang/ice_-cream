@@ -27,7 +27,7 @@ public class WeatherApplication extends Application {
         DaUtils.getInstance().getAdUtils(this,"200", "");
     }
 
-    public static Context getContext(){
+    public static Context getInstance(){
         return mContext;
     }
 

@@ -27,8 +27,8 @@ public class TTAdManagerHolder {
         doInit(context);
     }
 
-    public static void init(Context context, String codeId) {
-        doInit(context, codeId);
+    public static void init(Context context, String appId) {
+        doInit(context, appId);
     }
 
     public static void init(Context context, AdConfigBean.AdidsEntity adidsEntity) {
@@ -43,9 +43,9 @@ public class TTAdManagerHolder {
         }
     }
 
-    private static void doInit(Context context, String codeId) {
+    private static void doInit(Context context, String appId) {
         if (!sInit) {
-            TTAdSdk.init(context, buildConfig(context, codeId));
+            TTAdSdk.init(context, buildConfig(context, appId));
             sInit = true;
         }
     }
@@ -74,9 +74,9 @@ public class TTAdManagerHolder {
                 .build();
     }
 
-    private static TTAdConfig buildConfig(Context context, String codeId) {
+    private static TTAdConfig buildConfig(Context context, String appId) {
         return new TTAdConfig.Builder()
-                .appId(codeId)
+                .appId(appId)
 //                .appId(adidsEntity.getAppid())
                 .useTextureView(true) //使用TextureView控件播放视频,默认为SurfaceView,当有SurfaceView冲突的场景，可以使用TextureView
                 .appName("APP测试媒体")

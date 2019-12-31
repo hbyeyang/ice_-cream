@@ -67,7 +67,9 @@ public class MainActivity extends AppCompatActivity {
         findViewById(R.id.tv_show).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                VideoPlayActivity.launch(MainActivity.this);
+//                VideoPlayActivity.launch(MainActivity.this);
+//                HomeActivity.launch(MainActivity.this);
+                WeatherActivity.launch(MainActivity.this);
             }
         });
 
