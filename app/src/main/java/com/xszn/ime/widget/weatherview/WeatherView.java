@@ -134,6 +134,12 @@ public class WeatherView extends HorizontalScrollView {
                 pathDay.moveTo(x0, y0);
                 pathNight.moveTo(x, y);
 
+                pathFirstDay.reset();
+                pathFirstNight.reset();
+
+                pathFirstDay.moveTo(x0, y0);
+                pathFirstNight.moveTo(x, y);
+
                 if (lineType == LINE_TYPE_CURVE) {
 
                     int lineSize = root.getChildCount();
