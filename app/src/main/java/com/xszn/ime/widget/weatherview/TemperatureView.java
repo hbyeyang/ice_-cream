@@ -51,7 +51,8 @@ public class TemperatureView extends View {
     }
 
     private void initAttrs(Context context, AttributeSet attrs) {
-        lineColor = 0xff93a122;
+        //todo 修改透明
+        lineColor = 0x00000000;
         textColor = 0xffffffff;
         pointColor = 0xffffffff;
     }

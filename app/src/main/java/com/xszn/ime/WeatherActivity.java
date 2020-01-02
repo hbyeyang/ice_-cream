@@ -96,7 +96,7 @@ public class WeatherActivity extends AppCompatActivity {
     }
 
     private void initViwe() {
-        drawLine();
+//        drawLine();
         //填充天气数据
         mWeatherView.setList(generateData());
 
@@ -116,7 +116,9 @@ public class WeatherActivity extends AppCompatActivity {
         }
 
         //设置白天和晚上线条的颜色
-        mWeatherView.setDayAndNightLineColor(Color.parseColor("#E4AE47"), Color.parseColor("#58ABFF"));
+//        mWeatherView.setDayAndNightLineColor(Color.parseColor("#E4AE47"), Color.parseColor("#58ABFF"));
+        //// TODO: 2020-01-02 修改下划线颜色
+        mWeatherView.setDayAndNightLineColor(Color.parseColor("#D81B60"), Color.parseColor("#FFEB3B"));
 
         //点击某一列
         mWeatherView.setOnWeatherItemClickListener(new WeatherView.OnWeatherItemClickListener() {
@@ -152,6 +154,7 @@ public class WeatherActivity extends AppCompatActivity {
                 values.add(new PointValue(j, randomNumbersTab[i][j]));
             }
             Line line = new Line(values);
+            //温度曲线
             line.setColor(getResources().getColor(R.color.white));
 
             line.setShape(shape);
@@ -177,14 +180,25 @@ public class WeatherActivity extends AppCompatActivity {
         for (int i = 0; i < numberOfPoints; i++) {
             axisValues.add(new AxisValue(i).setLabel(lineLabels[i]));
         }
+        //X轴数值，看需求，白色就好
         Axis axisX = new Axis(axisValues).setMaxLabelChars(5);
         axisX.setTextColor(getResources().getColor(R.color.white))
-                .setTextSize(10).setHasSeparationLineColor(Color.parseColor("#28ffffff"))
+//        axisX.setTextColor(getResources().getColor(R.color.coloryellow))
+                .setTextSize(10).setHasSeparationLineColor(R.color.color_28FFFFFF)
                 .setHasTiltedLabels(true).setHasSeparationLine(true);
         data.setAxisXBottom(axisX);
+
+//        Axis axisX1 = new Axis(axisValues).setMaxLabelChars(5);
+//        axisX1.setTextColor(getResources().getColor(R.color.white))
+//        axisX1.setTextColor(getResources().getColor(R.color.coloryellow))
+//                .setTextSize(10).setHasSeparationLineColor(R.color.color_28FFFFFF)
+//                .setHasTiltedLabels(true).setHasSeparationLine(true);
+//        data.setAxisXTop(axisX1);
+        //Y轴上面的数值，需要隐藏
         Axis axisY = new Axis().setHasSeparationLine(false).setMaxLabelChars(3)
                 .setTextColor(getResources().getColor(R.color.transparent))
-                .setTextSize(11).setHasLines(true).setLineColor(Color.parseColor("#28ffffff"))
+//                .setTextColor(getResources().getColor(R.color.coloryellow))
+                .setTextSize(11).setHasLines(true).setLineColor(R.color.color_28FFFFFF)
                 .setHasTiltedLabels(false);
         data.setAxisYLeft(axisY);
         data.setBaseValue(Float.NEGATIVE_INFINITY);

@@ -2,6 +2,7 @@ package com.xszn.ime.widget.weatherview;
 
 import android.content.Context;
 import android.graphics.Canvas;
+import android.graphics.DashPathEffect;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.util.AttributeSet;
@@ -24,9 +25,14 @@ public class WeatherView extends HorizontalScrollView {
     private List<WeatherModel> list;
     private Paint dayPaint;
     private Paint nightPaint;
+    private Paint dayFirstPaint;
+    private Paint nightFirstPaint;
 
     protected Path pathDay;
     protected Path pathNight;
+
+    protected Path pathFirstDay;
+    protected Path pathFirstNight;
 
     public static final int LINE_TYPE_CURVE = 1; //曲线
     public static final int LINE_TYPE_DISCOUNT = 2; //折线
@@ -67,8 +73,24 @@ public class WeatherView extends HorizontalScrollView {
         nightPaint.setStrokeWidth(lineWidth);
         nightPaint.setStyle(Paint.Style.STROKE);
 
+        dayFirstPaint = new Paint();
+        dayFirstPaint.setColor(dayLineColor);
+        dayFirstPaint.setAntiAlias(true);
+        dayFirstPaint.setStrokeWidth(lineWidth);
+        dayFirstPaint.setStyle(Paint.Style.STROKE);
+        dayFirstPaint.setPathEffect(new DashPathEffect(new float[]{10, 10, 10, 10}, 0));
+
+        nightFirstPaint = new Paint();
+        nightFirstPaint.setColor(nightLineColor);
+        nightFirstPaint.setAntiAlias(true);
+        nightFirstPaint.setStrokeWidth(lineWidth);
+        nightFirstPaint.setStyle(Paint.Style.STROKE);
+        nightFirstPaint.setPathEffect(new DashPathEffect(new float[]{10, 10, 10, 10}, 0));
+
         pathDay = new Path();
         pathNight = new Path();
+        pathFirstDay = new Path();
+        pathFirstNight = new Path();
     }
 
     @Override
@@ -135,7 +157,245 @@ public class WeatherView extends HorizontalScrollView {
                     float nextPointX1 = Float.NaN;
                     float nextPointY1 = Float.NaN;
 
-                    for (int i = 0; i < lineSize; i++) {
+                    float preFirstPreviousPointX = Float.NaN;
+                    float preFirstPreviousPointY = Float.NaN;
+                    float previousFirstPointX = Float.NaN;
+                    float previousFirstPointY = Float.NaN;
+                    float currentFirstPointX = Float.NaN;
+                    float currentFirstPointY = Float.NaN;
+                    float nextFirstPointX = Float.NaN;
+                    float nextFirstPointY = Float.NaN;
+
+                    float preFirstPreviousPointX1 = Float.NaN;
+                    float preFirstPreviousPointY1 = Float.NaN;
+                    float previousFirstPointX1 = Float.NaN;
+                    float previousFirstPointY1 = Float.NaN;
+                    float currentFirstPointX1 = Float.NaN;
+                    float currentFirstPointY1 = Float.NaN;
+                    float nextFirstPointX1 = Float.NaN;
+                    float nextFirstPointY1 = Float.NaN;
+
+                    for (int i = 0; i < 2; i++) {
+
+                        //Day
+                        if (Float.isNaN(currentFirstPointX)) {
+                            WeatherItemView curWI = (WeatherItemView) root.getChildAt(i);
+                            int dayX = curWI.getTempX() + curWI.getWidth() * i;
+                            int dayY = curWI.getTempY();
+                            int nightX = curWI.getTempX() + curWI.getWidth() * i;
+                            int nightY = curWI.getTempY();
+                            TemperatureView tempV = (TemperatureView) curWI.findViewById(R.id.ttv_day);
+                            tempV.setRadius(10);
+
+                            //day2
+                            currentFirstPointX = (int) (dayX + tempV.getxPointDay());
+                            currentFirstPointY = (int) (dayY + tempV.getyPointDay());
+                            //night2
+                            int x2 = (int) (nightX + tempV.getxPointNight());
+                            int y2 = (int) (nightY + tempV.getyPointNight());
+
+                        }
+                        if (Float.isNaN(previousFirstPointX)) {
+                            if (i > 0) {
+                                WeatherItemView preWI = (WeatherItemView) root.getChildAt(Math.max(i - 1, 0));
+
+                                int dayX0 = preWI.getTempX() + preWI.getWidth() * (i - 1);
+                                int dayY0 = preWI.getTempY();
+                                int nightX0 = preWI.getTempX() + preWI.getWidth() * (i - 1);
+                                int nightY0 = preWI.getTempY();
+                                TemperatureView tempV0 = (TemperatureView) preWI.findViewById(R.id.ttv_day);
+                                tempV0.setRadius(10);
+
+
+                                //day1
+                                previousFirstPointX = (int) (dayX0 + tempV0.getxPointDay());
+                                previousFirstPointY = (int) (dayY0 + tempV0.getyPointDay());
+
+                                //night1
+                                int x02 = (int) (nightX0 + tempV0.getxPointNight());
+                                int y02 = (int) (nightY0 + tempV0.getyPointNight());
+
+                            } else {
+                                previousFirstPointX = currentFirstPointX;
+                                previousFirstPointY = currentFirstPointY;
+                            }
+                        }
+
+                        if (Float.isNaN(preFirstPreviousPointX)) {
+                            if (i > 1) {
+
+                                WeatherItemView preWI = (WeatherItemView) root.getChildAt(Math.max(i - 2, 0));
+
+                                int dayX0 = preWI.getTempX() + preWI.getWidth() * (i - 2);
+                                int dayY0 = preWI.getTempY();
+                                int nightX0 = preWI.getTempX() + preWI.getWidth() * (i - 2);
+                                int nightY0 = preWI.getTempY();
+                                TemperatureView tempV0 = (TemperatureView) preWI.findViewById(R.id.ttv_day);
+                                tempV0.setRadius(10);
+
+                                //pre pre day
+                                preFirstPreviousPointX = (int) (dayX0 + tempV0.getxPointDay());
+                                preFirstPreviousPointY = (int) (dayY0 + tempV0.getyPointDay());
+
+
+                            } else {
+                                preFirstPreviousPointX = previousFirstPointX;
+                                preFirstPreviousPointY = previousFirstPointY;
+                            }
+                        }
+
+                        // nextPoint is always new one or it is equal currentPoint.
+                        if (i < lineSize - 1) {
+
+                            WeatherItemView nextWI = (WeatherItemView) root.getChildAt(Math.min(root.getChildCount() - 1, i + 1));
+
+
+                            int dayX1 = nextWI.getTempX() + nextWI.getWidth() * (i + 1);
+                            int dayY1 = nextWI.getTempY();
+                            int nightX1 = nextWI.getTempX() + nextWI.getWidth() * (i + 1);
+                            int nightY1 = nextWI.getTempY();
+
+
+                            TemperatureView tempV1 = (TemperatureView) nextWI.findViewById(R.id.ttv_day);
+
+                            tempV1.setRadius(10);
+                            //day3
+                            nextFirstPointX = (int) (dayX1 + tempV1.getxPointDay());
+                            nextFirstPointY = (int) (dayY1 + tempV1.getyPointDay());
+                            //night3
+                            int x22 = (int) (nightX1 + tempV1.getxPointNight());
+                            int y22 = (int) (nightY1 + tempV1.getyPointNight());
+
+                        } else {
+                            nextFirstPointX = currentFirstPointX;
+                            nextFirstPointY = currentFirstPointY;
+                        }
+
+                        /*****************************Night************************/
+                        if (Float.isNaN(currentFirstPointX1)) {
+                            WeatherItemView curWI = (WeatherItemView) root.getChildAt(i);
+                            int nightX = curWI.getTempX() + curWI.getWidth() * i;
+                            int nightY = curWI.getTempY();
+                            TemperatureView tempV = (TemperatureView) curWI.findViewById(R.id.ttv_day);
+                            tempV.setRadius(10);
+
+                            //night2
+                            currentFirstPointX1 = nightX + tempV.getxPointNight();
+                            currentFirstPointY1 = nightY + tempV.getyPointNight();
+
+                        }
+                        if (Float.isNaN(previousFirstPointX1)) {
+                            if (i > 0) {
+                                WeatherItemView preWI = (WeatherItemView) root.getChildAt(Math.max(i - 1, 0));
+
+                                int nightX0 = preWI.getTempX() + preWI.getWidth() * (i - 1);
+                                int nightY0 = preWI.getTempY();
+                                TemperatureView tempV0 = (TemperatureView) preWI.findViewById(R.id.ttv_day);
+                                tempV0.setRadius(10);
+
+                                //night
+                                previousFirstPointX1 = (int) (nightX0 + tempV0.getxPointNight());
+                                previousFirstPointY1 = (int) (nightY0 + tempV0.getyPointNight());
+
+                            } else {
+                                previousFirstPointX1 = currentFirstPointX1;
+                                previousFirstPointY1 = currentFirstPointY1;
+                            }
+                        }
+
+                        if (Float.isNaN(preFirstPreviousPointX1)) {
+                            if (i > 1) {
+
+                                WeatherItemView preWI = (WeatherItemView) root.getChildAt(Math.max(i - 2, 0));
+
+                                int nightX0 = preWI.getTempX() + preWI.getWidth() * (i - 2);
+                                int nightY0 = preWI.getTempY();
+                                TemperatureView tempV0 = (TemperatureView) preWI.findViewById(R.id.ttv_day);
+                                tempV0.setRadius(10);
+
+                                //pre pre day
+                                preFirstPreviousPointX1 = (int) (nightX0 + tempV0.getxPointNight());
+                                preFirstPreviousPointY1 = (int) (nightY0 + tempV0.getyPointNight());
+
+
+                            } else {
+                                preFirstPreviousPointX1 = previousFirstPointX1;
+                                preFirstPreviousPointY1 = previousFirstPointY1;
+                            }
+                        }
+
+                        // nextPoint is always new one or it is equal currentPoint.
+                        if (i < 2) {
+
+                            WeatherItemView nextWI = (WeatherItemView) root.getChildAt(Math.min(root.getChildCount() - 1, i + 1));
+                            int nightX1 = nextWI.getTempX() + nextWI.getWidth() * (i + 1);
+                            int nightY1 = nextWI.getTempY();
+
+                            TemperatureView tempV1 = (TemperatureView) nextWI.findViewById(R.id.ttv_day);
+
+                            tempV1.setRadius(10);
+                            //night3
+                            nextFirstPointX1 = (int) (nightX1 + tempV1.getxPointNight());
+                            nextFirstPointY1 = (int) (nightY1 + tempV1.getyPointNight());
+
+                        } else {
+                            nextFirstPointX1 = currentFirstPointX1;
+                            nextFirstPointY1 = currentFirstPointY1;
+                        }
+
+                        //Day and Night
+                        if (i == 0) {
+                            // Move to start point.
+                            pathFirstDay.moveTo(currentFirstPointX, currentFirstPointY);
+                            pathFirstNight.moveTo(currentFirstPointX1, currentFirstPointY1);
+                        } else {
+                            // Calculate control points.
+                            final float firstDiffX = (currentFirstPointX - preFirstPreviousPointX);
+                            final float firstDiffY = (currentFirstPointY - preFirstPreviousPointY);
+                            final float secondDiffX = (nextFirstPointX - previousFirstPointX);
+                            final float secondDiffY = (nextFirstPointY - previousFirstPointY);
+                            final float firstControlPointX = previousFirstPointX + (intensity * firstDiffX);
+                            final float firstControlPointY = previousFirstPointY + (intensity * firstDiffY);
+                            final float secondControlPointX = currentFirstPointX - (intensity * secondDiffX);
+                            final float secondControlPointY = currentFirstPointY - (intensity * secondDiffY);
+                            pathFirstDay.cubicTo(firstControlPointX, firstControlPointY, secondControlPointX, secondControlPointY,
+                                    currentFirstPointX, currentFirstPointY);
+
+                            final float firstDiffX1 = (currentFirstPointX1 - preFirstPreviousPointX1);
+                            final float firstDiffY1 = (currentFirstPointY1 - preFirstPreviousPointY1);
+                            final float secondDiffX1 = (nextFirstPointX1 - previousFirstPointX1);
+                            final float secondDiffY1 = (nextFirstPointY1 - previousFirstPointY1);
+                            final float firstControlPointX1 = previousFirstPointX1 + (intensity * firstDiffX1);
+                            final float firstControlPointY1 = previousFirstPointY1 + (intensity * firstDiffY1);
+                            final float secondControlPointX1 = currentFirstPointX1 - (intensity * secondDiffX1);
+                            final float secondControlPointY1 = currentFirstPointY1 - (intensity * secondDiffY1);
+                            pathFirstNight.cubicTo(firstControlPointX1, firstControlPointY1, secondControlPointX1, secondControlPointY1,
+                                    currentFirstPointX1, currentFirstPointY1);
+                        }
+
+                        // Shift values by one back to prevent recalculation of values that have
+                        // been already calculated.
+                        preFirstPreviousPointX = previousFirstPointX;
+                        preFirstPreviousPointY = previousFirstPointY;
+                        previousFirstPointX = currentFirstPointX;
+                        previousFirstPointY = currentFirstPointY;
+                        currentFirstPointX = nextFirstPointX;
+                        currentFirstPointY = nextFirstPointY;
+
+                        preFirstPreviousPointX1 = previousFirstPointX1;
+                        preFirstPreviousPointY1 = previousFirstPointY1;
+                        previousFirstPointX1 = currentFirstPointX1;
+                        previousFirstPointY1 = currentFirstPointY1;
+                        currentFirstPointX1 = nextFirstPointX1;
+                        currentFirstPointY1 = nextFirstPointY1;
+
+                        canvas.drawPath(pathFirstDay, dayFirstPaint);
+                        canvas.drawPath(pathFirstNight, nightFirstPaint);
+                    }
+//                    canvas.drawPath(pathDay,dayFirstPaint);
+//                    canvas.drawPath(pathNight,nightFirstPaint);
+
+                    for (int i = 1; i < lineSize; i++) {
 
                         //Day
                         if (Float.isNaN(currentPointX)) {
@@ -157,11 +417,11 @@ public class WeatherView extends HorizontalScrollView {
                         }
                         if (Float.isNaN(previousPointX)) {
                             if (i > 0) {
-                                WeatherItemView preWI = (WeatherItemView) root.getChildAt(Math.max(i-1, 0));
+                                WeatherItemView preWI = (WeatherItemView) root.getChildAt(Math.max(i - 1, 0));
 
-                                int dayX0 = preWI.getTempX() + preWI.getWidth() * (i-1);
+                                int dayX0 = preWI.getTempX() + preWI.getWidth() * (i - 1);
                                 int dayY0 = preWI.getTempY();
-                                int nightX0 = preWI.getTempX() + preWI.getWidth() * (i-1);
+                                int nightX0 = preWI.getTempX() + preWI.getWidth() * (i - 1);
                                 int nightY0 = preWI.getTempY();
                                 TemperatureView tempV0 = (TemperatureView) preWI.findViewById(R.id.ttv_day);
                                 tempV0.setRadius(10);
@@ -184,11 +444,11 @@ public class WeatherView extends HorizontalScrollView {
                         if (Float.isNaN(prePreviousPointX)) {
                             if (i > 1) {
 
-                                WeatherItemView preWI = (WeatherItemView) root.getChildAt(Math.max(i-2, 0));
+                                WeatherItemView preWI = (WeatherItemView) root.getChildAt(Math.max(i - 2, 0));
 
-                                int dayX0 = preWI.getTempX() + preWI.getWidth() * (i-2);
+                                int dayX0 = preWI.getTempX() + preWI.getWidth() * (i - 2);
                                 int dayY0 = preWI.getTempY();
-                                int nightX0 = preWI.getTempX() + preWI.getWidth() * (i-2);
+                                int nightX0 = preWI.getTempX() + preWI.getWidth() * (i - 2);
                                 int nightY0 = preWI.getTempY();
                                 TemperatureView tempV0 = (TemperatureView) preWI.findViewById(R.id.ttv_day);
                                 tempV0.setRadius(10);
@@ -207,7 +467,7 @@ public class WeatherView extends HorizontalScrollView {
                         // nextPoint is always new one or it is equal currentPoint.
                         if (i < lineSize - 1) {
 
-                            WeatherItemView nextWI = (WeatherItemView) root.getChildAt(Math.min(root.getChildCount()-1, i + 1));
+                            WeatherItemView nextWI = (WeatherItemView) root.getChildAt(Math.min(root.getChildCount() - 1, i + 1));
 
 
                             int dayX1 = nextWI.getTempX() + nextWI.getWidth() * (i + 1);
@@ -246,9 +506,9 @@ public class WeatherView extends HorizontalScrollView {
                         }
                         if (Float.isNaN(previousPointX1)) {
                             if (i > 0) {
-                                WeatherItemView preWI = (WeatherItemView) root.getChildAt(Math.max(i-1, 0));
+                                WeatherItemView preWI = (WeatherItemView) root.getChildAt(Math.max(i - 1, 0));
 
-                                int nightX0 = preWI.getTempX() + preWI.getWidth() * (i-1);
+                                int nightX0 = preWI.getTempX() + preWI.getWidth() * (i - 1);
                                 int nightY0 = preWI.getTempY();
                                 TemperatureView tempV0 = (TemperatureView) preWI.findViewById(R.id.ttv_day);
                                 tempV0.setRadius(10);
@@ -266,9 +526,9 @@ public class WeatherView extends HorizontalScrollView {
                         if (Float.isNaN(prePreviousPointX1)) {
                             if (i > 1) {
 
-                                WeatherItemView preWI = (WeatherItemView) root.getChildAt(Math.max(i-2, 0));
+                                WeatherItemView preWI = (WeatherItemView) root.getChildAt(Math.max(i - 2, 0));
 
-                                int nightX0 = preWI.getTempX() + preWI.getWidth() * (i-2);
+                                int nightX0 = preWI.getTempX() + preWI.getWidth() * (i - 2);
                                 int nightY0 = preWI.getTempY();
                                 TemperatureView tempV0 = (TemperatureView) preWI.findViewById(R.id.ttv_day);
                                 tempV0.setRadius(10);
@@ -287,7 +547,7 @@ public class WeatherView extends HorizontalScrollView {
                         // nextPoint is always new one or it is equal currentPoint.
                         if (i < lineSize - 1) {
 
-                            WeatherItemView nextWI = (WeatherItemView) root.getChildAt(Math.min(root.getChildCount()-1, i + 1));
+                            WeatherItemView nextWI = (WeatherItemView) root.getChildAt(Math.min(root.getChildCount() - 1, i + 1));
                             int nightX1 = nextWI.getTempX() + nextWI.getWidth() * (i + 1);
                             int nightY1 = nextWI.getTempY();
 
@@ -306,6 +566,9 @@ public class WeatherView extends HorizontalScrollView {
                         //Day and Night
                         if (i == 0) {
                             // Move to start point.
+//                            pathDay.moveTo(currentPointX, currentPointY);
+//                            pathNight.moveTo(currentPointX1, currentPointY1);
+                        } else if (i == 1) {
                             pathDay.moveTo(currentPointX, currentPointY);
                             pathNight.moveTo(currentPointX1, currentPointY1);
                         } else {
@@ -348,11 +611,13 @@ public class WeatherView extends HorizontalScrollView {
                         previousPointY1 = currentPointY1;
                         currentPointX1 = nextPointX1;
                         currentPointY1 = nextPointY1;
-
+//                        if (i == 1) {
+//                            LogUtils.d("currentPointX: " + currentPointX);
+//                            LogUtils.d("currentPointY: " + currentPointY);
+//                        }
+                        canvas.drawPath(pathDay, dayPaint);
+                        canvas.drawPath(pathNight, nightPaint);
                     }
-
-                    canvas.drawPath(pathDay, dayPaint);
-                    canvas.drawPath(pathNight, nightPaint);
                 } else {
                     //折线
                     for (int i = 0; i < root.getChildCount() - 1; i++) {
@@ -407,6 +672,8 @@ public class WeatherView extends HorizontalScrollView {
         this.lineWidth = lineWidth;
         dayPaint.setStrokeWidth(lineWidth);
         nightPaint.setStrokeWidth(lineWidth);
+        nightFirstPaint.setStrokeWidth(lineWidth);
+        nightFirstPaint.setStrokeWidth(lineWidth);
         invalidate();
     }
 
@@ -427,6 +694,8 @@ public class WeatherView extends HorizontalScrollView {
         this.nightLineColor = nightColor;
         dayPaint.setColor(dayLineColor);
         nightPaint.setColor(nightLineColor);
+        dayFirstPaint.setColor(dayLineColor);
+        nightFirstPaint.setColor(nightLineColor);
         invalidate();
     }
 
@@ -461,7 +730,7 @@ public class WeatherView extends HorizontalScrollView {
             itemView.setDayTemp(model.getDayTemp());
             itemView.setDayWeather(model.getDayWeather());
             if (model.getDayPic() == 0) {
-                if (model.getDayWeather() != null){
+                if (model.getDayWeather() != null) {
                     itemView.setDayImg(PicUtil.getDayWeatherPic(model.getDayWeather()));
                 }
             } else {
@@ -470,7 +739,7 @@ public class WeatherView extends HorizontalScrollView {
             itemView.setNightWeather(model.getNightWeather());
             itemView.setNightTemp(model.getNightTemp());
             if (model.getNightPic() == 0) {
-                if (model.getNightWeather() != null){
+                if (model.getNightWeather() != null) {
                     itemView.setNightImg(PicUtil.getNightWeatherPic(model.getNightWeather()));
                 }
             } else {
@@ -478,8 +747,8 @@ public class WeatherView extends HorizontalScrollView {
             }
             itemView.setWindOri(model.getWindOrientation());
             itemView.setWindLevel(model.getWindLevel());
-           // itemView.setAirLevel(model.getAirLevel());
-            itemView.setLayoutParams(new LinearLayout.LayoutParams(screenWidth / columnNumber, ViewGroup.LayoutParams.WRAP_CONTENT));
+//             itemView.setAirLevel(model.getAirLevel());
+            itemView.setLayoutParams(new LinearLayout.LayoutParams((int)(screenWidth / 6.5), ViewGroup.LayoutParams.WRAP_CONTENT));
             itemView.setClickable(true);
             final int finalI = i;
             itemView.setOnClickListener(new OnClickListener() {
