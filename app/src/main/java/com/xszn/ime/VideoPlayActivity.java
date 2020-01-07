@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 
-import com.zkyy.icecream.constan.DaAdvertiserType;
 import com.zkyy.icecream.callback.DaVideoPlayCallBack;
 import com.zkyy.icecream.dautil.DaVideoLoad;
 import com.zkyy.icecream.utils.LogUtils;
@@ -40,7 +39,7 @@ public class VideoPlayActivity extends AppCompatActivity {
     //918834024 小石
     //901121365 测试
     private void init() {
-        DaVideoLoad.play(this, DaAdvertiserType.CSJ, "901121365", new DaVideoPlayCallBack() {
+        DaVideoLoad.play(this, 1050, new DaVideoPlayCallBack() {
             @Override
             public void isDaVideoReady() {
                 LogUtils.d(TAG);

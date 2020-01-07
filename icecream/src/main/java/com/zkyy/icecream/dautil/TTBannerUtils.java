@@ -1,4 +1,4 @@
-package com.zkyy.icecream.ttutil;
+package com.zkyy.icecream.dautil;
 
 import android.app.Activity;
 import android.view.View;
@@ -9,8 +9,11 @@ import com.bytedance.sdk.openadsdk.TTAdDislike;
 import com.bytedance.sdk.openadsdk.TTAdNative;
 import com.bytedance.sdk.openadsdk.TTAppDownloadListener;
 import com.bytedance.sdk.openadsdk.TTBannerAd;
+import com.zkyy.icecream.DaUtils;
 import com.zkyy.icecream.callback.DaBannerCallBack;
 import com.zkyy.icecream.config.TTAdManagerHolder;
+import com.zkyy.icecream.constan.AdLoc;
+import com.zkyy.icecream.net.NetAddress;
 import com.zkyy.icecream.utils.LogUtils;
 
 /**
@@ -31,15 +34,16 @@ public class TTBannerUtils {
      * 穿山甲banner
      *
      * @param activity
-     * @param adCode
+     * @param codeIndex
+     * @param index
      * @param frameLayout
      * @param daBannerCallBack
      */
-    public static void csjBannerLoad(Activity activity, String adCode, final FrameLayout frameLayout, final DaBannerCallBack daBannerCallBack) {
+    public static void csjBannerLoad(final Activity activity, final int codeIndex, final int index, final FrameLayout frameLayout, final DaBannerCallBack daBannerCallBack) {
         TTAdNative adNative = TTAdManagerHolder.get().createAdNative(activity);
         //step4:创建广告请求参数AdSlot,具体参数含义参考文档
         AdSlot adSlot = new AdSlot.Builder()
-                .setCodeId(adCode) //广告位id
+                .setCodeId(DaUtils.getAdCode(codeIndex, index)) //广告位id
                 .setSupportDeepLink(true)
                 .setImageAcceptedSize(600, 257)
                 .build();
@@ -49,8 +53,13 @@ public class TTBannerUtils {
             @Override
             public void onError(int code, String message) {
                 LogUtils.d(TAG + "load error : " + code + ", " + message);
-                daBannerCallBack.onDaBannerError(code, message);
-                frameLayout.removeAllViews();
+                if (index + 1 <= DaUtils.getAdCodes(codeIndex).size()) {
+                    DaBannerLoad.loadBannerWay(activity, codeIndex, index + 1, frameLayout, daBannerCallBack);
+                } else {
+                    daBannerCallBack.onDaBannerError(code, message);
+                    frameLayout.removeAllViews();
+                }
+                NetAddress.newUploadingSignAd(codeIndex,index, AdLoc.AD_REQUEST,AdLoc.REQUEST_FAILED);
             }
 
             @Override
@@ -62,6 +71,7 @@ public class TTBannerUtils {
                 if (bannerView == null) {
                     return;
                 }
+                NetAddress.newUploadingSignAd(codeIndex,index,AdLoc.AD_REQUEST,AdLoc.REQUEST_SUCCEED);
                 //设置轮播的时间间隔  间隔在30s到120秒之间的值，不设置默认不轮播
                 ad.setSlideIntervalTime(30 * 1000);
                 frameLayout.removeAllViews();
@@ -72,12 +82,14 @@ public class TTBannerUtils {
                     public void onAdClicked(View view, int type) {
                         LogUtils.d(TAG + "广告被点击");
                         daBannerCallBack.onDaBannerClicked(view, type);
+                        NetAddress.newUploadingSignAd(codeIndex,index,AdLoc.AD_CLICK,AdLoc.REQUEST_SUCCEED);
                     }
 
                     @Override
                     public void onAdShow(View view, int type) {
                         LogUtils.d(TAG + "广告展示");
                         daBannerCallBack.onDaBannerShow(view, type);
+                        NetAddress.newUploadingSignAd(codeIndex,index,AdLoc.AD_SHOW,AdLoc.REQUEST_SUCCEED);
                     }
                 });
                 //（可选）设置下载类广告的下载监听

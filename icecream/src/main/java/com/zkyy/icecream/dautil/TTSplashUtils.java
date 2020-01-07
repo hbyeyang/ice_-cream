@@ -1,4 +1,4 @@
-package com.zkyy.icecream.ttutil;
+package com.zkyy.icecream.dautil;
 
 import android.app.Activity;
 import android.util.Log;
@@ -10,8 +10,11 @@ import com.bytedance.sdk.openadsdk.TTAdConstant;
 import com.bytedance.sdk.openadsdk.TTAdNative;
 import com.bytedance.sdk.openadsdk.TTAppDownloadListener;
 import com.bytedance.sdk.openadsdk.TTSplashAd;
+import com.zkyy.icecream.DaUtils;
 import com.zkyy.icecream.callback.DaSplashCallBack;
 import com.zkyy.icecream.config.TTAdManagerHolder;
+import com.zkyy.icecream.constan.AdLoc;
+import com.zkyy.icecream.net.NetAddress;
 import com.zkyy.icecream.utils.LogUtils;
 import com.zkyy.icecream.utils.MyUtils;
 
@@ -28,23 +31,34 @@ import com.zkyy.icecream.utils.MyUtils;
 public class TTSplashUtils {
     private static String TAG = TTSplashUtils.class.getSimpleName() + ": ";
 
-    public static void loadCsjSplash(Activity activity, String adCode, final FrameLayout frameLayout, final DaSplashCallBack daSplashCallBack) {
+    public static void loadCsjSplash(final Activity activity, final int codeIndex, final int index, final FrameLayout frameLayout, final DaSplashCallBack daSplashCallBack) {
         TTAdManagerHolder.init(activity);
         TTAdNative mTTAdNative = TTAdManagerHolder.get().createAdNative(activity);
         AdSlot adSlot = new AdSlot.Builder()
-                .setCodeId(adCode)
+                .setCodeId(DaUtils.getAdCode(codeIndex, index))
                 .setSupportDeepLink(true)
                 .setImageAcceptedSize(MyUtils.getScreenWidth(activity), MyUtils.getScreenHeight(activity))
                 .build();
         mTTAdNative.loadSplashAd(adSlot, new TTAdNative.SplashAdListener() {
             @Override
             public void onError(int i, String s) {
-                daSplashCallBack.onDaSplashError(i, s);
+                if (index + 1 <= DaUtils.getAdCodes(codeIndex).size()) {
+                    DaSplashLoad.loadSplashWay(activity, codeIndex, index + 1, frameLayout, daSplashCallBack);
+                } else {
+                    daSplashCallBack.onDaSplashError(i, s);
+                }
+                NetAddress.newUploadingSignAd(codeIndex,index,AdLoc.AD_REQUEST,AdLoc.REQUEST_FAILED);
             }
 
             @Override
             public void onTimeout() {
-                daSplashCallBack.onDaSplashTimeout();
+                //如果后续没有广告位配置，就直接超时跳转页面
+                if (index + 1 <= DaUtils.getAdCodes(codeIndex).size()) {
+                    DaSplashLoad.loadSplashWay(activity, codeIndex, index + 1, frameLayout, daSplashCallBack);
+                } else {
+                    daSplashCallBack.onDaSplashTimeout();
+                }
+                NetAddress.newUploadingSignAd(codeIndex,index,AdLoc.AD_REQUEST,AdLoc.REQUEST_FAILED);
             }
 
             @Override
@@ -53,6 +67,7 @@ public class TTSplashUtils {
                 if (ttSplashAd == null) {
                     return;
                 }
+                NetAddress.newUploadingSignAd(codeIndex,index,AdLoc.AD_REQUEST,AdLoc.REQUEST_SUCCEED);
                 //获取SplashView
                 View view = ttSplashAd.getSplashView();
                 if (view != null) {
@@ -67,19 +82,21 @@ public class TTSplashUtils {
                 ttSplashAd.setSplashInteractionListener(new TTSplashAd.AdInteractionListener() {
                     @Override
                     public void onAdClicked(View view, int type) {
-                        LogUtils.d(TAG+ "onAdClicked");
+                        LogUtils.d(TAG + "onAdClicked");
+                        NetAddress.newUploadingSignAd(codeIndex,index,AdLoc.AD_CLICK,AdLoc.REQUEST_SUCCEED);
 //                        showToast("开屏广告点击");
                     }
 
                     @Override
                     public void onAdShow(View view, int type) {
-                        LogUtils.d(TAG+"onAdShow");
+                        LogUtils.d(TAG + "onAdShow");
+                        NetAddress.newUploadingSignAd(codeIndex,index,AdLoc.AD_SHOW,AdLoc.REQUEST_SUCCEED);
 //                        showToast("开屏广告展示");
                     }
 
                     @Override
                     public void onAdSkip() {
-                        LogUtils.d(TAG+"onAdSkip");
+                        LogUtils.d(TAG + "onAdSkip");
 //                        showToast("开屏广告跳过");
                         daSplashCallBack.onDaToMain();
 

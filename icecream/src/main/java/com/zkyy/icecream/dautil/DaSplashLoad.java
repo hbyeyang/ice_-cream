@@ -3,9 +3,9 @@ package com.zkyy.icecream.dautil;
 import android.app.Activity;
 import android.widget.FrameLayout;
 
+import com.zkyy.icecream.DaUtils;
 import com.zkyy.icecream.callback.DaSplashCallBack;
-import com.zkyy.icecream.constan.DaAdvertiserType;
-import com.zkyy.icecream.ttutil.TTSplashUtils;
+import com.zkyy.icecream.constan.DaConstan;
 import com.zkyy.icecream.utils.LogUtils;
 
 /**
@@ -22,39 +22,64 @@ public class DaSplashLoad {
     private static String TAG = DaSplashLoad.class.getSimpleName() + ": ";
 
 
-    public static void loadSplash(Activity activity, DaAdvertiserType daAdvertiserType, String adCode, FrameLayout frameLayout, DaSplashCallBack daSplashCallBack) {
+    public static void loadSplash(Activity activity, int posId, FrameLayout frameLayout, DaSplashCallBack daSplashCallBack) {
+        LogUtils.d(TAG + "loadSplash");
+        int codeIndex = DaUtils.getCodeIndex(posId);
+        int index = 0;
+        if (codeIndex < 0 || codeIndex > DaUtils.getAdNum()) {
+            LogUtils.d("请查看请求的广告位是否已配置");
+            if (daSplashCallBack != null) {
+                daSplashCallBack.onDaError("请查看请求的广告位是否已配置");
+            }
+        }
         if (activity == null) {
             LogUtils.d(TAG + "activity不能为空");
+            if (daSplashCallBack != null) {
+                daSplashCallBack.onDaError("activity不能为空");
+            }
             return;
         }
-        if (daAdvertiserType == null) {
-            LogUtils.d(TAG + "daAdvertiserType不能为空");
-            return;
-        }
-        if (adCode == null) {
-            LogUtils.d(TAG + "adCode不能为空");
+        if (posId == 0) {
+            LogUtils.d(TAG + "posId不能为0");
+            if (daSplashCallBack != null) {
+                daSplashCallBack.onDaError("posId不能为0");
+            }
             return;
         }
         if (frameLayout == null) {
             LogUtils.d(TAG + "frameLayout容器不能为空");
+            if (daSplashCallBack != null) {
+                daSplashCallBack.onDaError("frameLayout容器不能为空");
+            }
             return;
         }
         if (daSplashCallBack == null) {
             LogUtils.d(TAG + "daSplashCallBack不能为空");
+            if (daSplashCallBack != null) {
+                daSplashCallBack.onDaError("daSplashCallBack不能为空");
+            }
             return;
         }
-        switch (daAdvertiserType) {
-            case BD:
-                break;
-            case CSJ:
-                TTSplashUtils.loadCsjSplash(activity, adCode, frameLayout, daSplashCallBack);
-                break;
-            case GDT:
-                break;
-            case MV:
-                break;
-        }
+
+        loadSplashWay(activity, codeIndex, index, frameLayout, daSplashCallBack);
     }
 
-
+    protected static void loadSplashWay(Activity activity, int codeIndex, int index, FrameLayout frameLayout, DaSplashCallBack daSplashCallBack) {
+        if (index < DaUtils.getAdCodes(codeIndex).size()) {
+            switch (DaUtils.getAdvType(codeIndex, index)) {
+                case DaConstan.CSJ:
+                    TTSplashUtils.loadCsjSplash(activity, codeIndex, index, frameLayout, daSplashCallBack);
+                    break;
+                default:
+                    if (daSplashCallBack != null) {
+                        daSplashCallBack.onDaError("未知错误");
+                    }
+                    break;
+            }
+        } else {
+            if (daSplashCallBack != null) {
+                daSplashCallBack.onDaError("没有更多广告配置了");
+            }
+        }
+    }
 }

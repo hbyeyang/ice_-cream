@@ -18,4 +18,5 @@ public interface DaBannerCallBack {
     public void onDaBannerShow(View view, int type);
     public void onDaBannerSelected(int position, String value);
     public void onDaBannerCancel();
+    public void onDaBannerError(String message);
 }

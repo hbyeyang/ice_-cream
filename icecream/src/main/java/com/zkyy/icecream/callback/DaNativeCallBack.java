@@ -28,4 +28,6 @@ public interface DaNativeCallBack {
 
     public void onDaNativeCancel();
 
+    public void onDaNativeError(String message);
+
 }

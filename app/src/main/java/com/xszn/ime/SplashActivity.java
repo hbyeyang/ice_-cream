@@ -9,7 +9,6 @@ import android.widget.Toast;
 import com.bytedance.sdk.openadsdk.TTSplashAd;
 import com.xszn.ime.utils.WeakHandler;
 import com.zkyy.icecream.callback.DaSplashCallBack;
-import com.zkyy.icecream.constan.DaAdvertiserType;
 import com.zkyy.icecream.dautil.DaSplashLoad;
 import com.zkyy.icecream.utils.LogUtils;
 
@@ -55,7 +54,8 @@ public class SplashActivity extends AppCompatActivity implements WeakHandler.IHa
 
     private void init() {
         mHandler.sendEmptyMessageDelayed(MSG_GO_MAIN, AD_TIME_OUT);
-        DaSplashLoad.loadSplash(this, DaAdvertiserType.CSJ, "801121648", mFrameLayout, new DaSplashCallBack() {
+        //801121648
+        DaSplashLoad.loadSplash(this, 1001, mFrameLayout, new DaSplashCallBack() {
             @Override
             @MainThread
             public void onDaSplashError(int code, String message) {
@@ -87,7 +87,11 @@ public class SplashActivity extends AppCompatActivity implements WeakHandler.IHa
                 goToMainActivity();
             }
 
-            ;
+            @Override
+            public void onDaError(String message) {
+                LogUtils.d(TAG + message);
+                goToMainActivity();
+            }
         });
     }
 

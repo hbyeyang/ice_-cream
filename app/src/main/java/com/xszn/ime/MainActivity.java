@@ -14,7 +14,6 @@ import com.yanzhenjie.permission.AndPermission;
 import com.yanzhenjie.permission.runtime.Permission;
 import com.zkyy.icecream.callback.DaBannerCallBack;
 import com.zkyy.icecream.callback.DaNativeCallBack;
-import com.zkyy.icecream.constan.DaAdvertiserType;
 import com.zkyy.icecream.dautil.DaBannerLoad;
 import com.zkyy.icecream.dautil.DaNativeLoad;
 import com.zkyy.icecream.utils.LogUtils;
@@ -75,7 +74,7 @@ public class MainActivity extends AppCompatActivity {
 
         //901121895
         //901121987
-        DaBannerLoad.loadBanner(this, DaAdvertiserType.CSJ, "901121895", mBannerTopFrameLayout, new DaBannerCallBack() {
+        DaBannerLoad.loadBanner(this, 1040, mBannerTopFrameLayout, new DaBannerCallBack() {
 
             @Override
             public void onDaBannerError(int code, String message) {
@@ -101,9 +100,14 @@ public class MainActivity extends AppCompatActivity {
             public void onDaBannerCancel() {
 
             }
+
+            @Override
+            public void onDaBannerError(String message) {
+
+            }
         });
 
-        DaBannerLoad.loadBanner(this, DaAdvertiserType.CSJ, "901121987", mBannerBottomFrameLayout, new DaBannerCallBack() {
+        DaBannerLoad.loadBanner(this, 1041, mBannerBottomFrameLayout, new DaBannerCallBack() {
 
             @Override
             public void onDaBannerError(int code, String message) {
@@ -129,9 +133,14 @@ public class MainActivity extends AppCompatActivity {
             public void onDaBannerCancel() {
 
             }
+
+            @Override
+            public void onDaBannerError(String message) {
+
+            }
         });
 
-        DaNativeLoad.loadNative(this, DaAdvertiserType.CSJ, "901121423", mLinearLayout, new DaNativeCallBack() {
+        DaNativeLoad.loadNative(this, 1010, mLinearLayout, new DaNativeCallBack() {
             @Override
             public void onDaNativeError(int code, String message) {
 
@@ -159,6 +168,11 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onDaNativeCancel() {
+
+            }
+
+            @Override
+            public void onDaNativeError(String message) {
 
             }
         });

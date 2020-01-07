@@ -3,9 +3,9 @@ package com.zkyy.icecream.net;
 
 import com.zkyy.icecream.DaUtils;
 import com.zkyy.icecream.constan.AdLoc;
+import com.zkyy.icecream.constan.PhoneConstan;
 import com.zkyy.icecream.utils.HttpParameters;
 import com.zkyy.icecream.utils.LogUtils;
-import com.zkyy.icecream.constan.PhoneConstan;
 import com.zkyy.icecream.utils.SPAdUtils;
 
 import java.io.IOException;
@@ -29,7 +29,17 @@ public class NetAddress {
 
 
     // 测试环境
-    private static String BASE_URL_TEST = "http://api.sdk.alpha.letupower.cn/api.php?r=api/index";
+//    private static String BASE_URL_TEST = "http://api.sdk.alpha.letupower.cn/api.php?r=api/index";
+    private static String BASE_URL_TEST = "https://ime.letupower.cn/";
+
+    public static String getDaData(){
+        return BASE_URL_TEST+"ad/list";
+    }
+
+    public static String getDaUpLoadData(){
+        return BASE_URL_TEST+"ad/post-data";
+    }
+
 
     // 线上环境
     private static String BASE_URL_ONLINE = "https://api.ic.letupower.cn/api.php?r=api/index";
@@ -59,10 +69,10 @@ public class NetAddress {
      * code104 -- 服务端异常
      */
 
-    private static String getUrl(boolean flag){
-        if (flag){
+    private static String getUrl(boolean flag) {
+        if (flag) {
             return BASE_URL_TEST;
-        }else {
+        } else {
             return BASE_URL_ONLINE;
         }
     }
@@ -79,7 +89,7 @@ public class NetAddress {
         try {
             final StringBuilder mStrBuffer = new StringBuilder();
             LogUtils.d("上报广告url：" + parmas.toString());
-            OkHttp3Utils.doPost(NetAddress.BASE_URL, parmas, new Callback() {
+            OkHttp3Utils.doPost(NetAddress.getDaUpLoadData(), parmas, new Callback() {
                 @Override
                 public void onFailure(Call call, IOException e) {
                     String s = parmas.get(PhoneConstan.ADATA);
@@ -100,22 +110,23 @@ public class NetAddress {
     }
 
     /**
-     * 单独上报广告封装
+     * 单独上报广告封装(一次拉取多条广告时用的)
      *
      * @param adNum         广告位置
-     * @param adId          广告ID
+     * @param adCode        广告ID
      * @param operation     操作  1.请求、2.展示、3、点击、4、请求素材
      * @param succeedOrFail 1成功      0失败
      * @param adType        1百度 2广点通
      * @param requestNum    请求次数
+     * @param adId          请求次数
      */
-    public static void uploadingSignAdNative(int adNum, String adId, int operation, int succeedOrFail, int adType, int requestNum) {
+    public static void uploadingSignAdNative(int adNum, String adCode, int operation, int succeedOrFail, int adType, int requestNum, int adId) {
         try {
             final StringBuilder mStrBuffer = new StringBuilder();
             final HashMap<String, String> parmas = HttpParameters.getParams(DaUtils.getInstance().mContext, 0);
-            parmas.put(PhoneConstan.ADATA, adNum + "|" + adId + "|" + operation + "|" + succeedOrFail + "|" + adType + "|" + requestNum);
+            parmas.put(PhoneConstan.ADATA, adNum + "|" + adCode + "|" + operation + "|" + succeedOrFail + "|" + adType + "|" + requestNum + "|" + adId);
             LogUtils.d("单独上报广告url：" + parmas.toString());
-            OkHttp3Utils.doPost(NetAddress.BASE_URL, parmas, new Callback() {
+            OkHttp3Utils.doPost(NetAddress.getDaUpLoadData(), parmas, new Callback() {
                 @Override
                 public void onFailure(Call call, IOException e) {
                     String s = parmas.get(PhoneConstan.ADATA);
@@ -139,18 +150,51 @@ public class NetAddress {
      * 单独上报广告封装
      *
      * @param adNum         广告位置
-     * @param adId          广告ID
+     * @param adCode        广告ID
      * @param operation     操作  1.请求、2.展示、3、点击、4、请求素材
      * @param succeedOrFail 1成功      0失败
      * @param adType        1百度 2广点通
      */
-    public static void uploadingSignAd(int adNum, String adId, int operation, int succeedOrFail, int adType) {
+    public static void uploadingSignAd(int adNum, String adCode, int operation, int succeedOrFail, String adType, int requestNum, int adId) {
         try {
             final StringBuilder mStrBuffer = new StringBuilder();
             final HashMap<String, String> parmas = HttpParameters.getParams(DaUtils.getInstance().mContext, 0);
-            parmas.put(PhoneConstan.ADATA, adNum + "|" + adId + "|" + operation + "|" + succeedOrFail + "|" + adType);
+            parmas.put(PhoneConstan.ADATA, adNum + "|" + adCode + "|" + operation + "|" + succeedOrFail + "|" + adType + "|" + requestNum + "|" + adId);
             LogUtils.d("单独上报广告url：" + parmas.toString());
-            OkHttp3Utils.doPost(NetAddress.BASE_URL, parmas, new Callback() {
+            OkHttp3Utils.doPost(NetAddress.getDaUpLoadData(), parmas, new Callback() {
+                @Override
+                public void onFailure(Call call, IOException e) {
+                    String s = parmas.get(PhoneConstan.ADATA);
+                    mStrBuffer.append(SPAdUtils.getString(DaUtils.getInstance().mContext, AdLoc.AD_ERR_CACHE_LOG, ""));
+                    mStrBuffer.append(s + "|1|" + System.currentTimeMillis() + ",");
+                    SPAdUtils.saveString(DaUtils.getInstance().mContext, AdLoc.AD_ERR_CACHE_LOG,
+                            mStrBuffer.toString());
+                }
+
+                @Override
+                public void onResponse(Call call, Response response) throws IOException {
+                    LogUtils.d("单独广告上传成功" + response.body().string());
+                }
+            });
+        } catch (Exception e) {
+        }
+    }
+
+    /**
+     * 单独上报广告封装(新封装，旧的可以过时了)
+     *
+     * @param codeIndex     广告位置
+     * @param index         广告位置
+     * @param operation     操作  1.请求、2.展示、3、点击、4、请求素材
+     * @param succeedOrFail 1成功      0失败
+     */
+    public static void newUploadingSignAd(int codeIndex, int index, int operation, int succeedOrFail) {
+        try {
+            final StringBuilder mStrBuffer = new StringBuilder();
+            final HashMap<String, String> parmas = HttpParameters.getParams(DaUtils.getInstance().mContext, 0);
+            parmas.put(PhoneConstan.ADATA, codeIndex + "|" + DaUtils.getAdCode(codeIndex,index) + "|" + operation + "|" + succeedOrFail + "|" + DaUtils.getAdvType(codeIndex,index) + "|" + 1 + "|" + DaUtils.getCodeAdId(codeIndex,index));
+            LogUtils.d("单独上报广告url：" + parmas.toString());
+            OkHttp3Utils.doPost(NetAddress.getDaUpLoadData(), parmas, new Callback() {
                 @Override
                 public void onFailure(Call call, IOException e) {
                     String s = parmas.get(PhoneConstan.ADATA);

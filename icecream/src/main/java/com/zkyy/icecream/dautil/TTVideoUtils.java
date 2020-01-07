@@ -1,4 +1,4 @@
-package com.zkyy.icecream.ttutil;
+package com.zkyy.icecream.dautil;
 
 import android.app.Activity;
 import android.os.Handler;
@@ -12,8 +12,11 @@ import com.bytedance.sdk.openadsdk.TTAdNative;
 import com.bytedance.sdk.openadsdk.TTAppDownloadListener;
 import com.bytedance.sdk.openadsdk.TTFullScreenVideoAd;
 import com.bytedance.sdk.openadsdk.TTRewardVideoAd;
+import com.zkyy.icecream.DaUtils;
 import com.zkyy.icecream.callback.DaVideoPlayCallBack;
 import com.zkyy.icecream.config.TTAdManagerHolder;
+import com.zkyy.icecream.constan.AdLoc;
+import com.zkyy.icecream.net.NetAddress;
 import com.zkyy.icecream.utils.LogUtils;
 import com.zkyy.icecream.utils.MyUtils;
 
@@ -42,37 +45,40 @@ public class TTVideoUtils {
     /**
      * 播放广告
      *
-     * @param code     广告位
+     * @param codeIndex     广告位置
      * @param isReward 是否激励视频
      * @param callback 回调
      */
-    public static void playCsjAd(@NonNull Activity activity, @NonNull String code, @NonNull boolean isReward, @NonNull DaVideoPlayCallBack callback) {
-        LogUtils.d(TAG + "playAd-" + "code=" + code + " isReward=" + isReward);
+    public static void playCsjAd(@NonNull Activity activity, int codeIndex,int index, @NonNull DaVideoPlayCallBack callback) {
+        LogUtils.d(TAG + "playAd-" + "code=" + DaUtils.getAdCode(codeIndex,index));
         if (mHandler == null) {
             mHandler = new Handler(Looper.getMainLooper());
         }
         TTAdNative mTTAdNative = TTAdManagerHolder.get().createAdNative(activity);
         AdSlot adSlot = new AdSlot.Builder()
-                .setCodeId(code)
+                .setCodeId(DaUtils.getAdCode(codeIndex,index))
                 .setSupportDeepLink(true)
                 .setImageAcceptedSize(MyUtils.getScreenWidth(activity), MyUtils.getScreenHeight(activity))
                 .setOrientation(TTAdConstant.VERTICAL)//必填参数，期望视频的播放方向：TTAdConstant.HORIZONTAL 或 TTAdConstant.VERTICAL
                 .build();
-        if (isReward) {
-            loadRewardVideoAd(activity, mTTAdNative, adSlot, callback);
-        } else {
-            loadFullScreenVideoAd(activity, mTTAdNative, adSlot, callback);
-        }
+//        if (isReward) {
+//            loadRewardVideoAd(activity, mTTAdNative, adSlot, callback);
+//        } else {
+//            loadFullScreenVideoAd(activity, mTTAdNative, adSlot, callback);
+//        }
+        loadRewardVideoAd(activity,codeIndex,index, mTTAdNative, adSlot, callback);
     }
 
     /**
      * 播放激励视频代码
      *
-     * @param callback
+     * @param codeIndex
+     * @param index
+     * @param daVideoPlayCallBack
      */
     @SuppressWarnings("SameParameterValue")
-    private static void loadRewardVideoAd(final Activity activity, TTAdNative ttAdNative, AdSlot adSlot, final DaVideoPlayCallBack callback) {
-        if (callback == null) {
+    private static void loadRewardVideoAd(final Activity activity, final int codeIndex, final int index, TTAdNative ttAdNative, AdSlot adSlot, final DaVideoPlayCallBack daVideoPlayCallBack) {
+        if (daVideoPlayCallBack == null) {
             return;
         }
         //step5:请求广告
@@ -80,7 +86,12 @@ public class TTVideoUtils {
             @Override
             public void onError(int code, String message) {
                 Log.d("TipDemo", "onError");
-                callback.onDaVideoError(message);
+                if (index + 1 <= DaUtils.getAdCodes(codeIndex).size()) {
+                    DaVideoLoad.loadPlayWay(activity, codeIndex, index + 1, daVideoPlayCallBack);
+                } else {
+                    daVideoPlayCallBack.onDaVideoError(message);
+                }
+                NetAddress.newUploadingSignAd(codeIndex,index, AdLoc.AD_REQUEST,AdLoc.REQUEST_FAILED);
             }
 
             //视频广告加载后，视频资源缓存到本地的回调，在此回调后，播放本地视频，流畅不阻塞。
@@ -98,31 +109,37 @@ public class TTVideoUtils {
                     @Override
                     public void onAdShow() {
                         LogUtils.d(TAG + "onAdShow");
-                        callback.onDaVideoShow();
+                        daVideoPlayCallBack.onDaVideoShow();
+                        NetAddress.newUploadingSignAd(codeIndex,index, AdLoc.AD_SHOW,AdLoc.REQUEST_SUCCEED);
                     }
 
                     @Override
                     public void onAdVideoBarClick() {
                         LogUtils.d(TAG + "onAdVideoBarClick");
+                        NetAddress.newUploadingSignAd(codeIndex,index, AdLoc.AD_CLICK,AdLoc.REQUEST_SUCCEED);
                     }
 
                     @Override
                     public void onAdClose() {
                         LogUtils.d(TAG + "onAdClose");
-                        callback.onDaVideoClose();
+                        daVideoPlayCallBack.onDaVideoClose();
                     }
 
                     //视频播放完成回调
                     @Override
                     public void onVideoComplete() {
                         LogUtils.d(TAG + "onVideoComplete");
-                        callback.onDaPlayComplete();
+                        daVideoPlayCallBack.onDaPlayComplete();
                     }
 
                     @Override
                     public void onVideoError() {
                         LogUtils.d(TAG + "onVideoError");
-                        callback.onDaVideoError();
+                        if (index + 1 <= DaUtils.getAdCodes(codeIndex).size()) {
+                            DaVideoLoad.loadPlayWay(activity, codeIndex, index + 1, daVideoPlayCallBack);
+                        } else {
+                            daVideoPlayCallBack.onDaVideoError();
+                        }
                     }
 
                     //视频播放完成后，奖励验证回调，rewardVerify：是否有效，rewardAmount：奖励梳理，rewardName：奖励名称
@@ -133,7 +150,7 @@ public class TTVideoUtils {
 
                     public void onSkippedVideo() {
                         LogUtils.d(TAG + "onSkippedVideo");
-                        callback.onDaPlayComplete();
+                        daVideoPlayCallBack.onDaPlayComplete();
                     }
                 });
                 mttRewardVideoAd.setDownloadListener(new TTAppDownloadListener() {

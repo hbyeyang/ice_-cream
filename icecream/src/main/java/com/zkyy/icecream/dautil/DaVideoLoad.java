@@ -2,9 +2,9 @@ package com.zkyy.icecream.dautil;
 
 import android.app.Activity;
 
+import com.zkyy.icecream.DaUtils;
 import com.zkyy.icecream.callback.DaVideoPlayCallBack;
-import com.zkyy.icecream.constan.DaAdvertiserType;
-import com.zkyy.icecream.ttutil.TTVideoUtils;
+import com.zkyy.icecream.constan.DaConstan;
 import com.zkyy.icecream.utils.LogUtils;
 
 /**
@@ -26,41 +26,59 @@ public class DaVideoLoad {
      * 调用播放视频
      *
      * @param activity
-     * @param daAdvertiserType    广告主 枚举  DaAdvertiserType
-     * @param adCode              广告位ID
+     * @param posId
      * @param daVideoPlayCallBack 回调
      */
-    public static void play(Activity activity, DaAdvertiserType daAdvertiserType, String adCode, DaVideoPlayCallBack daVideoPlayCallBack) {
-        if (activity == null && daVideoPlayCallBack != null) {
+    public static void play(Activity activity, int posId, DaVideoPlayCallBack daVideoPlayCallBack) {
+        LogUtils.d(TAG + "play");
+        int codeIndex = DaUtils.getCodeIndex(posId);
+        int index = 0;
+        if (codeIndex < 0 || codeIndex > DaUtils.getAdNum()) {
+            LogUtils.d("请查看请求的广告位是否已配置");
+            if (daVideoPlayCallBack != null) {
+                daVideoPlayCallBack.onDaVideoError("请查看请求的广告位是否已配置");
+            }
+        }
+        if (activity == null) {
             LogUtils.d(TAG + "activity不能为空");
-            daVideoPlayCallBack.onDaVideoError("未知错误");
+            if (daVideoPlayCallBack != null) {
+                daVideoPlayCallBack.onDaVideoError("activity不能为空");
+            }
             return;
         }
-        if (daAdvertiserType == null && daVideoPlayCallBack != null) {
-            LogUtils.d(TAG + "daAdvertiserType不能为空");
-            daVideoPlayCallBack.onDaVideoError("未知错误");
+        if (posId == 0) {
+            LogUtils.d(TAG + "posId不能为0");
+            if (daVideoPlayCallBack != null) {
+                daVideoPlayCallBack.onDaVideoError("posId不能为0");
+            }
             return;
         }
-        if (adCode == null && daVideoPlayCallBack != null) {
-            LogUtils.d(TAG + "adCode不能为空");
-            daVideoPlayCallBack.onDaVideoError("未知错误");
+        if (daVideoPlayCallBack == null) {
+            LogUtils.d(TAG + "daSplashCallBack不能为空");
+            if (daVideoPlayCallBack != null) {
+                daVideoPlayCallBack.onDaVideoError("daSplashCallBack不能为空");
+            }
             return;
         }
-        if (daVideoPlayCallBack == null && daVideoPlayCallBack != null) {
-            LogUtils.d(TAG + "daVideoPlayCallBack不能为空");
-            daVideoPlayCallBack.onDaVideoError("未知错误");
-            return;
-        }
-        switch (daAdvertiserType) {
-            case BD:
-                break;
-            case CSJ:
-                TTVideoUtils.playCsjAd(activity, adCode, true, daVideoPlayCallBack);
-                break;
-            case GDT:
-                break;
-            case MV:
-                break;
+        loadPlayWay(activity, codeIndex, index, daVideoPlayCallBack);
+    }
+
+    protected static void loadPlayWay(Activity activity, int codeIndex, int index, DaVideoPlayCallBack daVideoPlayCallBack) {
+        if (index < DaUtils.getAdCodes(codeIndex).size()) {
+            switch (DaUtils.getAdvType(codeIndex, index)) {
+                case DaConstan.CSJ:
+                    TTVideoUtils.playCsjAd(activity, codeIndex, index, daVideoPlayCallBack);
+                    break;
+                default:
+                    if (daVideoPlayCallBack != null) {
+                        daVideoPlayCallBack.onDaVideoError("未知错误");
+                    }
+                    break;
+            }
+        } else {
+            if (daVideoPlayCallBack != null) {
+                daVideoPlayCallBack.onDaVideoError("没有更多广告配置了");
+            }
         }
     }
 }

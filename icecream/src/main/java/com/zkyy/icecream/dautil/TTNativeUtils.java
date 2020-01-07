@@ -1,4 +1,4 @@
-package com.zkyy.icecream.ttutil;
+package com.zkyy.icecream.dautil;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -18,9 +18,12 @@ import com.bytedance.sdk.openadsdk.TTAdNative;
 import com.bytedance.sdk.openadsdk.TTAppDownloadListener;
 import com.bytedance.sdk.openadsdk.TTImage;
 import com.bytedance.sdk.openadsdk.TTNativeAd;
+import com.zkyy.icecream.DaUtils;
 import com.zkyy.icecream.R;
 import com.zkyy.icecream.callback.DaNativeCallBack;
 import com.zkyy.icecream.config.TTAdManagerHolder;
+import com.zkyy.icecream.constan.AdLoc;
+import com.zkyy.icecream.net.NetAddress;
 import com.zkyy.icecream.utils.LogUtils;
 import com.zkyy.icecream.utils.MyUtils;
 
@@ -46,15 +49,16 @@ public class TTNativeUtils {
      * 穿山甲原生广告
      *
      * @param activity
-     * @param adCode           901121423
+     * @param codeIndex
+     * @param index
      * @param linearLayout
      * @param daNativeCallBack
      */
-    public static void csjLoadNative(final Activity activity, String adCode, final LinearLayout linearLayout, final DaNativeCallBack daNativeCallBack) {
+    public static void csjLoadNative(final Activity activity, final int codeIndex, final int index, final LinearLayout linearLayout, final DaNativeCallBack daNativeCallBack) {
         TTAdNative adNative = TTAdManagerHolder.get().createAdNative(activity);
         //step4:创建广告请求参数AdSlot,注意其中的setNativeAdtype方法，具体参数含义参考文档
         final AdSlot adSlot = new AdSlot.Builder()
-                .setCodeId(adCode)
+                .setCodeId(DaUtils.getAdCode(codeIndex,index))
                 .setSupportDeepLink(true)
 //                .setImageAcceptedSize(600, 257)
                 .setImageAcceptedSize(MyUtils.px2dp(activity,600), MyUtils.px2dp(activity,257))
@@ -67,7 +71,12 @@ public class TTNativeUtils {
             @Override
             public void onError(int code, String message) {
                 LogUtils.d(TAG + "load error : " + code + ", " + message);
-                daNativeCallBack.onDaNativeError(code, message);
+                if (index + 1 <= DaUtils.getAdCodes(codeIndex).size()) {
+                    DaNativeLoad.loadNativeWay(activity, codeIndex, index + 1, linearLayout, daNativeCallBack);
+                } else {
+                    daNativeCallBack.onDaNativeError(code, message);
+                }
+                NetAddress.newUploadingSignAd(codeIndex,index, AdLoc.AD_REQUEST,AdLoc.REQUEST_FAILED);
             }
 
             @Override
@@ -79,6 +88,7 @@ public class TTNativeUtils {
                 if (bannerView == null) {
                     return;
                 }
+                NetAddress.newUploadingSignAd(codeIndex,index, AdLoc.AD_REQUEST,AdLoc.REQUEST_SUCCEED);
                 if (mCreativeButton != null) {
                     //防止内存泄漏
                     mCreativeButton = null;
@@ -86,12 +96,12 @@ public class TTNativeUtils {
                 linearLayout.removeAllViews();
                 linearLayout.addView(bannerView);
                 //绑定原生广告的数据
-                setAdData(activity, linearLayout, bannerView, ads.get(0), daNativeCallBack);
+                setAdData(activity, codeIndex,index,linearLayout, bannerView, ads.get(0), daNativeCallBack);
             }
         });
     }
 
-    private static void setAdData(Activity activity, LinearLayout linearLayout, View nativeView, TTNativeAd nativeAd, final DaNativeCallBack daNativeCallBack) {
+    private static void setAdData(Activity activity, final int codeIndex, final int index, LinearLayout linearLayout, View nativeView, TTNativeAd nativeAd, final DaNativeCallBack daNativeCallBack) {
         ((TextView) nativeView.findViewById(R.id.tv_native_ad_title)).setText(nativeAd.getTitle());
         ((TextView) nativeView.findViewById(R.id.tv_native_ad_desc)).setText(nativeAd.getDescription());
         ImageView imgDislike = nativeView.findViewById(R.id.img_native_dislike);
@@ -148,6 +158,7 @@ public class TTNativeUtils {
                 if (ad != null) {
                     LogUtils.d(TAG + "广告" + ad.getTitle() + "被点击");
                     daNativeCallBack.onDaNativeClicked(view, ad);
+                    NetAddress.newUploadingSignAd(codeIndex,index, AdLoc.AD_CLICK,AdLoc.REQUEST_SUCCEED);
                 }
             }
 
@@ -164,7 +175,7 @@ public class TTNativeUtils {
                 if (ad != null) {
                     LogUtils.d(TAG + "广告" + ad.getTitle() + "展示");
                     daNativeCallBack.onDaNativeShow(ad);
-
+                    NetAddress.newUploadingSignAd(codeIndex,index, AdLoc.AD_SHOW,AdLoc.REQUEST_SUCCEED);
                 }
             }
         });

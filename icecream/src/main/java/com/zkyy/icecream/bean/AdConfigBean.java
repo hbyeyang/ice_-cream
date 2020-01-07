@@ -15,31 +15,14 @@ import java.util.List;
  */
 public class AdConfigBean implements Serializable {
 
-    @Override
-    public String toString() {
-        return "AdConfigBean{" +
-                "ret='" + ret + '\'' +
-                ", data=" + data +
-                ", tips='" + tips + '\'' +
-                '}';
-    }
 
     /**
      * ret : succ
-     * data : {"ctime":"2018-09-25 09:23:03","rules":[{"sign":1,"adids":[{"stype":1,"appid":"f5a67067","adid":"5902551"}]},{"sign":2,"adids":[{"stype":2,"appid":"1107203022","adid":"2030239885771016"}]}]}
+     * data : [{"ads":[{"ad_type":10001,"ad_code":"801121648","app_id":"5001121","app_key":"","ad_id":3}],"pos_id":1001},{"ads":[{"ad_type":10001,"ad_code":"801121648","app_id":"5001121","app_key":"","ad_id":3},{"ad_type":10001,"ad_code":"801121648000000","app_id":"5001121","app_key":"","ad_id":4}],"pos_id":1001},{"ads":[{"ad_type":10001,"ad_code":"801121648","app_id":"5001121","app_key":"","ad_id":3},{"ad_type":10001,"ad_code":"801121648000000","app_id":"5001121","app_key":"","ad_id":4},{"ad_type":10003,"ad_code":"901121423","app_id":"5001121","app_key":"","ad_id":5}],"pos_id":1002}]
      */
 
     private String ret;
-    private DataEntity data;
-    private String tips;
-
-    public String getTips() {
-        return tips;
-    }
-
-    public void setTips(String tips) {
-        this.tips = tips;
-    }
+    private List<DataEntity> data;
 
     public String getRet() {
         return ret;
@@ -49,186 +32,120 @@ public class AdConfigBean implements Serializable {
         this.ret = ret;
     }
 
-    public DataEntity getData() {
+    public List<DataEntity> getData() {
         return data;
     }
 
-    public void setData(DataEntity data) {
+    public void setData(List<DataEntity> data) {
         this.data = data;
     }
 
-    public static class DataEntity implements Serializable {
+    @Override
+    public String toString() {
+        return "AdConfigBean{" +
+                "ret='" + ret + '\'' +
+                ", data=" + data +
+                '}';
+    }
+
+    public static class DataEntity implements Serializable{
+        /**
+         * ads : [{"ad_type":10001,"ad_code":"801121648","app_id":"5001121","app_key":"","ad_id":3}]
+         * pos_id : 1001
+         */
+
+        private int pos_id;
+        private List<AdsEntity> ads;
+
+        public int getPos_id() {
+            return pos_id;
+        }
+
+        public void setPos_id(int pos_id) {
+            this.pos_id = pos_id;
+        }
+
+        public List<AdsEntity> getAds() {
+            return ads;
+        }
+
+        public void setAds(List<AdsEntity> ads) {
+            this.ads = ads;
+        }
+
         @Override
         public String toString() {
             return "DataEntity{" +
-                    "ctime='" + ctime + '\'' +
-                    ", rules=" + rules +
+                    "pos_id=" + pos_id +
+                    ", ads=" + ads +
                     '}';
         }
-
-        /**
-         * ctime : 2018-09-25 09:23:03
-         * rules : [{"sign":1,"adids":[{"stype":1,"appid":"f5a67067","adid":"5902551"}]},{"sign":2,"adids":[{"stype":2,"appid":"1107203022","adid":"2030239885771016"}]}]
-         */
-
-        private String ctime;
-        private String passport;
-        private String fhlopen;
-        private List<RulesEntity> rules;
-
-        public String getFhlopen() {
-            return fhlopen;
-        }
-
-        public void setFhlopen(String fhlopen) {
-            this.fhlopen = fhlopen;
-        }
-
-        public String getPassport() {
-            return passport;
-        }
-
-        public void setPassport(String passport) {
-            this.passport = passport;
-        }
-
-        public String getCtime() {
-            return ctime;
-        }
-
-        public void setCtime(String ctime) {
-            this.ctime = ctime;
-        }
-
-        public List<RulesEntity> getRules() {
-            return rules;
-        }
-
-        public void setRules(List<RulesEntity> rules) {
-            this.rules = rules;
-        }
-
-
     }
-    public static class RulesEntity implements Serializable {
-        @Override
-        public String toString() {
-            return "RulesEntity{" +
-                    "sign=" + sign +
-                    ", adids=" + adids +
-                    ", bhour='" + bhour + '\'' +
-                    ", ehour='" + ehour + '\'' +
-                    ", fnum=" + fnum +
-                    '}';
-        }
 
+    public static class AdsEntity implements Serializable{
         /**
-         * sign : 1 百度  2   广点通
-         * adids : [{"stype":1,"appid":"f5a67067","adid":"5902551"}]
+         * adv_type : 10001
+         * ad_code : 801121648
+         * app_id : 5001121
+         * app_key :
+         * ad_id : 3
          */
 
-        private int sign;
-        private List<AdidsEntity> adids;
+        private String adv_type;
+        private String ad_code;
+        private String app_id;
+        private String app_key;
+        private int ad_id;
 
-        private String bhour = "00:00";
-        private String ehour = "00:00";
-        private int fnum = 0;
-
-        public String getBhour() {
-            return bhour;
+        public String getAdv_type() {
+            return adv_type;
         }
 
-        public void setBhour(String bhour) {
-            this.bhour = bhour;
+        public void setAdv_type(String adv_type) {
+            this.adv_type = adv_type;
         }
 
-        public String getEhour() {
-            return ehour;
+        public String getAd_code() {
+            return ad_code;
         }
 
-        public void setEhour(String ehour) {
-            this.ehour = ehour;
+        public void setAd_code(String ad_code) {
+            this.ad_code = ad_code;
         }
 
-        public int getFnum() {
-            return fnum;
+        public String getApp_id() {
+            return app_id;
         }
 
-        public void setFnum(int fnum) {
-            this.fnum = fnum;
+        public void setApp_id(String app_id) {
+            this.app_id = app_id;
         }
 
-        public int getSign() {
-            return sign;
+        public String getApp_key() {
+            return app_key;
         }
 
-        public void setSign(int sign) {
-            this.sign = sign;
+        public void setApp_key(String app_key) {
+            this.app_key = app_key;
         }
 
-        public List<AdidsEntity> getAdids() {
-            return adids;
+        public int getAd_id() {
+            return ad_id;
         }
 
-        public void setAdids(List<AdidsEntity> adids) {
-            this.adids = adids;
+        public void setAd_id(int ad_id) {
+            this.ad_id = ad_id;
         }
-
-
-    }
-    public static class AdidsEntity implements Serializable {
-        /**
-         * stype : 1
-         * appid : f5a67067
-         * adid : 5902551
-         */
-
-        private int stype = -1;
-        private String appid;
-        private String adid;
-        private String secret;
 
         @Override
         public String toString() {
-            return "AdidsEntity{" +
-                    "stype=" + stype +
-                    ", appid='" + appid + '\'' +
-                    ", adid='" + adid + '\'' +
-                    ", secret='" + secret + '\'' +
+            return "AdsEntity{" +
+                    "adv_type='" + adv_type + '\'' +
+                    ", ad_code='" + ad_code + '\'' +
+                    ", app_id='" + app_id + '\'' +
+                    ", app_key='" + app_key + '\'' +
+                    ", ad_id=" + ad_id +
                     '}';
         }
-
-        public int getStype() {
-            return stype;
-        }
-
-        public void setStype(int stype) {
-            this.stype = stype;
-        }
-
-        public String getAppid() {
-            return appid;
-        }
-
-        public void setAppid(String appid) {
-            this.appid = appid;
-        }
-
-        public String getAdid() {
-            return adid;
-        }
-
-        public void setAdid(String adid) {
-            this.adid = adid;
-        }
-
-        public String getSecret() {
-            return secret;
-        }
-
-        public void setSecret(String secret) {
-            this.secret = secret;
-        }
     }
-
 }

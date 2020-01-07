@@ -31,8 +31,8 @@ public class TTAdManagerHolder {
         doInit(context, appId);
     }
 
-    public static void init(Context context, AdConfigBean.AdidsEntity adidsEntity) {
-        doInit(context, adidsEntity);
+    public static void init(Context context, AdConfigBean.AdsEntity adsEntity) {
+        doInit(context, adsEntity);
     }
 
     //step1:接入网盟广告sdk的初始化操作，详情见接入文档和穿山甲平台说明
@@ -50,9 +50,9 @@ public class TTAdManagerHolder {
         }
     }
 
-    private static void doInit(Context context, AdConfigBean.AdidsEntity adidsEntity) {
+    private static void doInit(Context context, AdConfigBean.AdsEntity adsEntity) {
         if (!sInit) {
-            TTAdSdk.init(context, buildConfig(context, adidsEntity));
+            TTAdSdk.init(context, buildConfig(context, adsEntity));
             sInit = true;
         }
     }
@@ -91,7 +91,7 @@ public class TTAdManagerHolder {
                 .build();
     }
 
-    private static TTAdConfig buildConfig(Context context, AdConfigBean.AdidsEntity adidsEntity) {
+    private static TTAdConfig buildConfig(Context context, AdConfigBean.AdsEntity adsEntity) {
         return new TTAdConfig.Builder()
                 .appId("5001121")
 //                .appId(adidsEntity.getAppid())

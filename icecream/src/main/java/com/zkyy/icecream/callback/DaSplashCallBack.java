@@ -24,4 +24,6 @@ public interface DaSplashCallBack {
      * 跳转主页
      */
     public void onDaToMain();
+
+    public void onDaError(String message);
 }
